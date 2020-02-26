@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Simplex {
 	private int nbVar;
 	private List<Integer> varX;
-	private List<Contrainte> constraint;
+	private List<Contrainte> constraints;
 	private FonctionEconomique Z;
 	private int NB_CONTRAINTES;
 	private int NB_VARIABLES;
@@ -19,7 +19,7 @@ public class Simplex {
 	public Simplex(int nbVariable) {
 		this.nbVar = nbVariable;
 		this.varX = new ArrayList<>();
-		this.constraint = new ArrayList<>();
+		this.constraints = new ArrayList<>();
 
 	}
 
@@ -64,12 +64,12 @@ public class Simplex {
 					tab[j] = readCoeff("x"+ (j+1));
 				}
 			}
-			constraint.add(new Contrainte(tab));
+			constraints.add(new Contrainte(tab));
 			
 		}
 		
 		System.out.println("Fin des contraintes");
-		for (Contrainte contrainte : constraint) {
+		for (Contrainte contrainte : constraints) {
 			contrainte.setConstraintType(TypeContrainte.LessThanEquals);
 			System.out.println(contrainte.toString());
 		}
@@ -98,6 +98,22 @@ public class Simplex {
 		System.out.println("Entrez le nombre de contraintes: ");
 		Integer nbContraintes = Integer.valueOf(sc.nextLine());
 		return nbContraintes;
+	}
+	
+	public int getNbVariables() {
+		return this.NB_VARIABLES;
+	}
+	
+	public int getNbContraintes() {
+		return this.NB_CONTRAINTES;
+	}
+	
+	public FonctionEconomique getFonctionEconomique() {
+		return this.Z;
+	}
+	
+	public List<Contrainte> getContraintes() {
+		return this.constraints;
 	}
 
 }
