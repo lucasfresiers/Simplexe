@@ -12,6 +12,7 @@ public class Simplex {
 	private int nbVar;
 	private List<Integer> varX;
 	private List<Contrainte> constraint;
+	private FonctionEconomique Z;
 	private int NB_CONTRAINTES;
 	private int NB_VARIABLES;
 
@@ -34,15 +35,14 @@ public class Simplex {
 	
 	public void readVariables(int nbVariables) {
 		System.out.println("Construction de Z");
-		String z = "";
-		for (int i = 1; i <= nbVariables; i++) {
-			if (i == 3) {
-				z += this.readCoeff("x" + i) + "x" + i;
-			} else {
-				z += this.readCoeff("x" + i) + "x" + i + " + ";
-			}
+		
+		double[] tab = new double[nbVariables];
+		
+		for (int i = 0; i < nbVariables; i++) {
+				tab[i] = this.readCoeff("x" + (i+1));
 		}
-		System.out.println("Z = " + z);
+		Z = new FonctionEconomique(tab);
+		System.out.println(Z.toString());
 	}
 	
 	public double readCoeff(String x) {
