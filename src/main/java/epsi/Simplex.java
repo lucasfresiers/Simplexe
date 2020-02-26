@@ -75,6 +75,17 @@ public class Simplex {
 		}
 	}
 	
+	public int varEntrante(int[] cjMoinsZj) {
+		int max = 0;
+		int index = 0;
+		for (int i = 0; i < cjMoinsZj.length; i++) {
+			if (max < cjMoinsZj[i]) {
+				max = cjMoinsZj[i];
+				index = i;
+			}
+		}
+		return index;
+	}
 	public Integer readNbVariables() {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Entrez le nombre de variables: ");
