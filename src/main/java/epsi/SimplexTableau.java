@@ -12,37 +12,42 @@ public class SimplexTableau {
 		this.simplex = simplex;
 		nbLigne = simplex.getNbContraintes() + 3;
 		nbColonne = simplex.getNbVariables() + 2 + simplex.getNbContraintes();
-		this.tab = createTableau();
+		createTableau();
 	}
 
-	private double[][] createTableau() {
-		double[][] tableau = new double[nbLigne][nbColonne];
+	private void createTableau() {
+		tab = new double[nbLigne][nbColonne];
 
+		for (int i = 0; i < this.nbLigne; i++) {
+			for (int j = 0; j < this.nbColonne; j++) {
+				tab[i][j] = 0;
+			}
+		}
 		// Initialisation ligne Cj
 		for (int i = 0; i < simplex.getNbVariables(); i++) {
-			tableau[0][i + 2] = simplex.getFonctionEconomique().getCoefficients()[i];
+			tab[0][i + 2] = simplex.getFonctionEconomique().getCoefficients()[i];
 		}
 
 		// Initialisation ligne variable sans les ajoutées
 		for (int i = 1; i < simplex.getNbContraintes() + 1; i++) {
 			for (int j = 0; j < simplex.getNbVariables() + 2; j++) {
 				if (j == 0) {
-					tableau[i][j] = 0;
+					tab[i][j] = 0;
 				} else if (j == 1) {
-					tableau[i][j] = simplex.getContraintes().get(i-1).getCoefficients()[simplex.getNbVariables()];
+					tab[i][j] = simplex.getContraintes().get(i - 1).getCoefficients()[simplex.getNbVariables()];
 				} else {
-					tableau[i][j] = simplex.getContraintes().get(i-1).getCoefficients()[j - 2];
-					System.out.println(simplex.getContraintes().get(i-1));
+					tab[i][j] = simplex.getContraintes().get(i - 1).getCoefficients()[j - 2];
 				}
 			}
 		}
-		int tmp=1 + simplex.getNbVariables();
-		for(int i = 1; i < simplex.getNbContraintes() + 1; i++) {
+		int tmp = 1 + simplex.getNbVariables();
+		for (int i = 1; i < simplex.getNbContraintes() + 1; i++) {
 			tmp++;
-			for(int j = 2 + simplex.getNbVariables(); j < this.nbColonne; j++) {
-				tableau[i][tmp]=1;
+			for (int j = 2 + simplex.getNbVariables(); j < this.nbColonne; j++) {
+				tab[i][tmp] = 1;
 			}
 		}
+
 //		int t = 0;
 //		for (int i = 1; i < simplex.getNbContraintes(); i++) {
 //			for (int j = 0; j < simplex.getNbContraintes(); j++) {
@@ -54,7 +59,7 @@ public class SimplexTableau {
 //				}
 //			}
 //		}
-		return tableau;
+		cjMoinsZj();
 	}
 
 	public double[] getCjMoinsZj() {
@@ -68,14 +73,111 @@ public class SimplexTableau {
 			}
 		}
 	}
-	
-	public void printTab() {
-		for (int i = 0; i < tab.length; i++)
-		{
-			for (int j = 0; (tab[i] != null && j < tab[i].length); j++)
-				System.out.print(tab[i][j] + " ");
 
+	public void printTab() {
+		for (int i = 0; i < tab.length; i++) {
+			if(i==1) {
+				System.out.println("---------------------------------------------");
+			}
+			if(this.nbLigne-2==i) {
+				System.out.println("---------------------------------------------");
+					
+			}
+			for (int j = 0; (tab[i] != null && j < tab[i].length); j++)
+				System.out.print("| " + String.format("%.2f", tab[i][j]));
 			System.out.println();
+		}
+	}
+
+	public double produitScalaireParColonne(int idx) {
+		double res = 0.0;
+		for (int i = 1; i < this.simplex.getNbContraintes() + 1; i++) {
+			res += this.tab[i][0] * this.tab[i][idx];
+		}
+
+		return res;
+	}
+
+	public void cjMoinsZj() {
+		for (int i = 1; i < this.simplex.getNbContraintes() + 1; i++) {
+			for (int j = 2; j < this.nbColonne ; j++) {
+				this.tab[this.nbLigne - 1][j] = this.tab[0][j] - this.tab[this.nbLigne - 2][j];
+			}
+		}
+	}
+
+	public double[][] getTab() {
+		return tab;
+	}
+
+	public void setTab(double[][] tab) {
+		this.tab = tab;
+	}
+
+	public int getNbLigne() {
+		return nbLigne;
+	}
+
+	public void setNbLigne(int nbLigne) {
+		this.nbLigne = nbLigne;
+	}
+
+	public int getNbColonne() {
+		return nbColonne;
+	}
+
+	public void setNbColonne(int nbColonne) {
+		this.nbColonne = nbColonne;
+	}
+
+	public Simplex getSimplex() {
+		return simplex;
+	}
+
+	public void setSimplex(Simplex simplex) {
+		this.simplex = simplex;
+	}
+
+	public int varEntrante() {
+		double max = 0;
+		int index = 0;
+		for (int j = 2; j < this.nbColonne; j++) {
+			if (max < this.tab[this.nbLigne - 1][j]) {
+				max = this.tab[this.nbLigne - 1][j];
+				index = j;
+			}
+		}
+		return index;
+	}
+
+	public int varSortante() {
+		double min = 32000;
+		int idx = 0;
+		for (int i = 1; i < simplex.getNbContraintes() + 1; i++) {
+			double r = this.tab[i][1] / this.tab[i][varEntrante()];
+			System.out.println("r " + r);
+			if (r < min && r > 0) {
+				idx = i;
+				min = r;
+			}
+		}
+		return idx;
+	}
+
+	public void diviserLignePivot(int lignePivot, int varEntrante) {
+		this.tab[lignePivot][0] = this.tab[0][varEntrante];
+		double oldValue=this.tab[lignePivot][varEntrante];
+		for (int j = 1; j < this.nbColonne; j++) {
+			
+			this.tab[lignePivot][j] = this.tab[lignePivot][j] / oldValue;
+		}
+	}
+
+	public void normaliserLigneParPivot(int ligneARetrancher,int varEntrante, int varSortante) {
+		double multiplicateurLignePivot = this.tab[ligneARetrancher][varEntrante];
+		for (int i = 1; i < this.nbColonne; i++) {
+			System.out.println(this.tab[ligneARetrancher][i]+"-"+(multiplicateurLignePivot+"*"+this.tab[varSortante][i]));
+			this.tab[ligneARetrancher][i]=this.tab[ligneARetrancher][i]-(multiplicateurLignePivot*this.tab[varSortante][i]);
 		}
 	}
 
