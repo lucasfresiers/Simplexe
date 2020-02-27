@@ -30,6 +30,9 @@ public class Simplex {
 		s.readVariables(s.NB_VARIABLES);
 		s.NB_CONTRAINTES = s.readNbContraintes();
 		s.readContraintes(s.NB_CONTRAINTES, s.NB_VARIABLES);
+		
+		SimplexTableau st = new SimplexTableau(s);
+		st.printTab();
 	}
 	
 	
