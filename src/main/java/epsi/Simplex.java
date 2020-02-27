@@ -25,19 +25,18 @@ public class Simplex {
 
 	public static void main(String[] args) {
 		Simplex s = new Simplex(3);
-		System.out.println("Hello World!");
 //		s.NB_VARIABLES = s.readNbVariables();
 //		s.readVariables(s.NB_VARIABLES);
 //		s.NB_CONTRAINTES = s.readNbContraintes();
 //		s.readContraintes(s.NB_CONTRAINTES, s.NB_VARIABLES);
 //		
-		s.NB_VARIABLES=2;
+		s.NB_VARIABLES=4;
 		s.NB_CONTRAINTES=3;
-		double [] coef = {3,2};
+		double [] coef = {3,2,2,5};
 		s.Z = new FonctionEconomique(coef) ;
-		double [] coef1 = {2,1,18};
-		double [] coef2 = {2,3,42};
-		double [] coef3 = {3,1,24};
+		double [] coef1 = {1,4,3,2,110};
+		double [] coef2 = {3,0,3,2,75};
+		double [] coef3 = {2,9,0,0,32};
 		Contrainte x1 = new Contrainte(coef1);
 		Contrainte x2= new Contrainte(coef2);
 		Contrainte x3  = new Contrainte(coef3);
@@ -45,41 +44,18 @@ public class Simplex {
 		s.constraints.add(x2);
 		s.constraints.add(x3);
 		SimplexTableau st = new SimplexTableau(s);
+		System.out.println("Itération 0 : ");
 		st.printTab();
-		System.out.println("Variable entrante valeur "+ st.getTab()[st.getNbLigne()-1][st.varEntrante()]);
-		System.out.println("Variable sortante ligne " + st.varSortante());
-		int varEntrante = st.varEntrante();
-		int varSortante = st.varSortante();
-		st.diviserLignePivot(st.varSortante(),st.varEntrante());
-		st.normaliserLigneParPivot(1,varEntrante,varSortante);
-		st.normaliserLigneParPivot(2,varEntrante,varSortante);
-		for(int j = 2 ; j<st.getNbColonne();j++) {
-			st.getTab()[st.getNbLigne()-2][j]=st.produitScalaireParColonne(j);
+		int idx=1;
+		while(!st.isNormalisationFinish()) {
+			System.out.println();
+			st.normaliserTableauEntier();
+			System.out.println("Itération "+idx+" : ");
+			st.printTab();
+			idx++;
 		}
-		st.cjMoinsZj();
-		st.printTab();
-		System.out.println("2EME TAB");
-		 varEntrante = st.varEntrante();
-		 varSortante = st.varSortante();
-		st.diviserLignePivot(st.varSortante(),st.varEntrante());
-		st.normaliserLigneParPivot(3,varEntrante,varSortante);
-		st.normaliserLigneParPivot(2,varEntrante,varSortante);
-		for(int j = 2 ; j<st.getNbColonne();j++) {
-			st.getTab()[st.getNbLigne()-2][j]=st.produitScalaireParColonne(j);
-		}
-		st.cjMoinsZj();
-		st.printTab();
-		System.out.println("3EME TAB");
-		 varEntrante = st.varEntrante();
-		 varSortante = st.varSortante();
-		st.diviserLignePivot(st.varSortante(),st.varEntrante());
-		st.normaliserLigneParPivot(3,varEntrante,varSortante);
-		st.normaliserLigneParPivot(1,varEntrante,varSortante);
-		for(int j = 2 ; j<st.getNbColonne();j++) {
-			st.getTab()[st.getNbLigne()-2][j]=st.produitScalaireParColonne(j);
-		}
-		st.cjMoinsZj();
-		st.printTab();
+		System.out.println();
+		System.out.println("Z = "+st.produitScalaireParColonne(1));
 	}
 	
 	

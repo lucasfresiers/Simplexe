@@ -1,5 +1,8 @@
 package epsi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SimplexTableau {
 
 	private double[][] tab;
@@ -75,16 +78,35 @@ public class SimplexTableau {
 	}
 
 	public void printTab() {
+		String str="";
+		for(int b = 0;b<8*(2+this.getSimplex().getNbContraintes()+this.getSimplex().getNbVariables());b++){
+			System.out.print("-");
+		}
+		System.out.println();
 		for (int i = 0; i < tab.length; i++) {
 			if(i==1) {
-				System.out.println("---------------------------------------------");
+				for(int b = 0;b<8*(2+this.getSimplex().getNbContraintes()+this.getSimplex().getNbVariables());b++){
+					System.out.print("-");
+				}
+				System.out.println();
 			}
-			if(this.nbLigne-2==i) {
-				System.out.println("---------------------------------------------");
-					
+			if(this.nbLigne-3<i) {
+				for(int b = 0;b<8*(2+this.getSimplex().getNbContraintes()+this.getSimplex().getNbVariables());b++){
+					System.out.print("-");
+				}
+				System.out.println();	
 			}
-			for (int j = 0; (tab[i] != null && j < tab[i].length); j++)
-				System.out.print("| " + String.format("%.2f", tab[i][j]));
+			for (int j = 0; (tab[i] != null && j < tab[i].length); j++) {
+				 str= "| "+String.format("%.2f", tab[i][j]);
+				int taille = str.length();
+				taille=8-taille;
+				
+				for(int k=0;k<taille;k++) {
+					str+=" ";
+				}
+				System.out.print(str);
+
+			}
 			System.out.println();
 		}
 	}
@@ -155,7 +177,6 @@ public class SimplexTableau {
 		int idx = 0;
 		for (int i = 1; i < simplex.getNbContraintes() + 1; i++) {
 			double r = this.tab[i][1] / this.tab[i][varEntrante()];
-			System.out.println("r " + r);
 			if (r < min && r > 0) {
 				idx = i;
 				min = r;
@@ -176,9 +197,37 @@ public class SimplexTableau {
 	public void normaliserLigneParPivot(int ligneARetrancher,int varEntrante, int varSortante) {
 		double multiplicateurLignePivot = this.tab[ligneARetrancher][varEntrante];
 		for (int i = 1; i < this.nbColonne; i++) {
-			System.out.println(this.tab[ligneARetrancher][i]+"-"+(multiplicateurLignePivot+"*"+this.tab[varSortante][i]));
 			this.tab[ligneARetrancher][i]=this.tab[ligneARetrancher][i]-(multiplicateurLignePivot*this.tab[varSortante][i]);
 		}
+	}
+	
+	public void normaliserTableauEntier() {
+		List<Integer> ligneANormaliser = new ArrayList<>();
+		for(int i=1;i<this.nbLigne-2;i++) {
+			ligneANormaliser.add(i);
+		}
+		int varEntrante = varEntrante();
+		int varSortante = varSortante();
+		ligneANormaliser.remove((Object)varSortante);
+		diviserLignePivot(varSortante, varEntrante);
+		for(Integer nbLigne : ligneANormaliser) {
+			normaliserLigneParPivot(nbLigne, varEntrante, varSortante);
+		}
+		for(int j = 2 ; j<this.getNbColonne();j++) {
+			this.tab[this.nbLigne-2][j]=produitScalaireParColonne(j);
+		}
+		cjMoinsZj();
+		this.tab[this.nbLigne-2][1]=this.produitScalaireParColonne(1);
+	}
+	
+	
+	public boolean isNormalisationFinish() {
+		for(int j=2;j<this.nbColonne;j++) {
+			if(this.tab[this.nbLigne-1][j]>0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
