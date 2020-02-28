@@ -79,6 +79,11 @@ public class SimplexTableau {
 
 	public void printTab() {
 		String str="";
+		System.out.print("   CP   |   Q   |");
+		for(int i=1;i<=simplex.getNbVariables()+simplex.getNbContraintes();i++) {
+			System.out.print("   X"+i+"  |");
+		}
+		System.out.println();
 		for(int b = 0;b<8*(2+this.getSimplex().getNbContraintes()+this.getSimplex().getNbVariables());b++){
 			System.out.print("-");
 		}
